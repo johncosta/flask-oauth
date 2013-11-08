@@ -1,0 +1,3 @@
+flask
+requests==0.14.2
+gevent==0.13.8
