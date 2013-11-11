@@ -2,41 +2,33 @@ import json
 import requests
 import urllib
 
+
 from flask import url_for, request, session, redirect, g, abort
 
 from app import app
 from functools import wraps
 
 
-BASE_URL = "http://localhost:8000"
-AUTHORIZE_URL = BASE_URL + '/account/o/authorize?'
-TOKEN_URL = BASE_URL + '/account/o/token'
+# TODO add your base url for example it might be:
+BASE_URL = "http://localhost:8000/"
+AUTHORIZE_URL = BASE_URL + 'api/v1/o/authorize/?client_id={client_id}&response_type=code'
+TOKEN_URL = BASE_URL + 'api/v1/o/token/'
 
 # Register these in your oauth provider or update them with different values
-CLIENT_ID = "puwrUBe7"
-CLIENT_SECRET = "yUnebuweTe4am5sWecA4"
+CLIENT_ID = "TestClientID"
+CLIENT_SECRET = "TestClientSecret"
 
 # This is the redirect back to the url of this app
 REDIRECT_BASE_URL = "http://localhost:5000"
 REDIRECT_URI = REDIRECT_BASE_URL + '/oauth_authorized'
 
+API_ENDPOINT = BASE_URL + 'api/v1/user_info/'
+
 
 def authenticate():
     print "[authenticate]: in"
     session['auth_next_url'] = request.url
-    params = {
-        'response_type': 'token',
-        'client_id':  CLIENT_ID,
-        'secret': CLIENT_SECRET,
-        'redirect_uri': REDIRECT_URI
-    }
-    encoded = urllib.urlencode(params)
-    authentication_url = AUTHORIZE_URL + encoded
-    print "[authenticate]: redirecting to authentication url: {0}".format(
-        authentication_url)
-    response = redirect(authentication_url)
-    print "[authenticate]: response: {0}".format(response.__dict__)
-    return response
+    return redirect(AUTHORIZE_URL.format(client_id=CLIENT_ID))
 
 
 def request_token(code=None, refresh_token=None):
@@ -46,7 +38,7 @@ def request_token(code=None, refresh_token=None):
         'client_id': CLIENT_ID,
         'client_secret': CLIENT_SECRET,
         'redirect_uri': REDIRECT_URI,
-        'scope': ''
+        'scopes': '',
     }
     if code:
         token_args.update({
@@ -80,11 +72,13 @@ def get_current_user():
     if 'user' in session:
         g.user = session['user']
         return
-    #r = requests.get('{0}/me'.format(API_ENDPOINT),
-    #    headers={'Authorization': 'Bearer {0}'.format(token['access_token'])})
-    #if r.status_code == requests.codes.ok:
-    #    g.user = json.loads(r.text)['object']
-    #    session['user'] = g.user
+    r = requests.get(
+        API_ENDPOINT,
+        headers={'Authorization': 'Bearer {0}'.format(token['access_token'])}
+    )
+    if r.status_code == requests.codes.ok:
+       g.user = json.loads(r.text)
+       session['user'] = g.user
 
 
 def requires_auth(f):

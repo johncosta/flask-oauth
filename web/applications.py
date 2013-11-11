@@ -1,10 +1,12 @@
-from flask import request, session, render_template, redirect, url_for
+import json
 
-from auth import requires_auth, request_token
+from flask import session
+
+from auth import requires_auth
 from app import app
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET'])
 @requires_auth
 def index():
 
@@ -14,13 +16,4 @@ def index():
     else:
         user = None
 
-    if request.method == 'POST':
-        # post
-        pass
-
-    data = {
-        'user': user,
-        'is_staff': user['is_staff'],
-    }
-
-    return render_template('index.html', **data)
+    return json.dumps(user)

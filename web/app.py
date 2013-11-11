@@ -16,8 +16,8 @@ if __name__ == '__main__':
     
     # Development keys
     auth.REDIRECT_URI = 'http://localhost:5000/oauth_authorized'
-    auth.CLIENT_ID = "puwrUBe7"
-    auth.CLIENT_SECRET = "yUnebuweTe4am5sWecA4"
+    auth.CLIENT_ID = "TestClientID"
+    auth.CLIENT_SECRET = "TestClientSecret"
 
     params = {"debug": True,
               "host":"0.0.0.0",}
