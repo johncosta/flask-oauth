@@ -2,7 +2,7 @@ from flask import Flask
 
 app = Flask(__name__)
 app.config.from_object(__name__)
-app.secret_key = "add this"
+app.secret_key = "secret_key"
 
 if __name__ == '__main__':
     import auth
@@ -15,8 +15,8 @@ if __name__ == '__main__':
     
     # Development keys
     auth.REDIRECT_URI = 'http://localhost:5000/oauth_authorized'
-    auth.CLIENT_ID = ""
-    auth.CLIENT_SECRET = ""
+    auth.CLIENT_ID = "TestClientID"
+    auth.CLIENT_SECRET = "TestClientSecret"
 
     params = {"debug": True,
               "host":"0.0.0.0",}

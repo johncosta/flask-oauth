@@ -1,15 +1,15 @@
+import json
+import requests
+from functools import wraps
+
 from flask import url_for, request, session, redirect, g, abort
 
 from app import app
-from functools import wraps
-import urllib2
-import requests
-import json
 
 # TODO add your base url for example it might be:
-BASE_URL = "http://dockerio-johndotcloud.dotcloud.com"
-AUTHORIZE_URL = BASE_URL + '/account/o/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code'
-TOKEN_URL = BASE_URL + '/o/token'
+BASE_URL = "http://localhost:8000"
+AUTHORIZE_URL = BASE_URL + '/api/v1/o/authorize/?client_id={client_id}&response_type=code'
+TOKEN_URL = BASE_URL + '/api/v1/o/token/'
 
 # TODO get these from the environment
 # TODO set these by registering them with the application
@@ -20,13 +20,12 @@ CLIENT_SECRET = ''
 REDIRECT_BASE_URL = ""
 REDIRECT_URI = REDIRECT_BASE_URL + '/oauth_authorized'
 
+API_ENDPOINT = BASE_URL + '/api/v1/user_info/'
+
 
 def authenticate():
     session['auth_next_url'] = request.url
-    return redirect(AUTHORIZE_URL.format(
-        client_id=CLIENT_ID,
-        redirect_uri=urllib2.quote(REDIRECT_URI),
-        secret=CLIENT_SECRET))
+    return redirect(AUTHORIZE_URL.format(client_id=CLIENT_ID))
 
 def request_token(code=None, refresh_token=None):
     if code is None and refresh_token is None:
@@ -35,7 +34,7 @@ def request_token(code=None, refresh_token=None):
         'client_id': CLIENT_ID,
         'client_secret': CLIENT_SECRET,
         'redirect_uri': REDIRECT_URI,
-        'scope': ''
+        'scopes': '',
     }
     if code:
         token_args.update({
@@ -69,11 +68,13 @@ def get_current_user():
     if 'user' in session:
         g.user = session['user']
         return
-    #r = requests.get('{0}/me'.format(API_ENDPOINT),
-    #    headers={'Authorization': 'Bearer {0}'.format(token['access_token'])})
-    #if r.status_code == requests.codes.ok:
-    #    g.user = json.loads(r.text)['object']
-    #    session['user'] = g.user
+    r = requests.get(
+        API_ENDPOINT,
+        headers={'Authorization': 'Bearer {0}'.format(token['access_token'])}
+    )
+    if r.status_code == requests.codes.ok:
+       g.user = json.loads(r.text)
+       session['user'] = g.user
 
 
 def requires_auth(f):
