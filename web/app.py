@@ -2,7 +2,8 @@ from flask import Flask
 
 app = Flask(__name__)
 app.config.from_object(__name__)
-app.secret_key = "add this"
+app.secret_key = ("\x86#h\xfb\xd3\xd9\x1d\xf7b\x9ayG"
+                  "\x8e\x1e\x9d);w \xf0z\x99&\xe8")
 
 if __name__ == '__main__':
     import auth
@@ -15,8 +16,10 @@ if __name__ == '__main__':
     
     # Development keys
     auth.REDIRECT_URI = 'http://localhost:5000/oauth_authorized'
-    auth.CLIENT_ID = ""
-    auth.CLIENT_SECRET = ""
+    auth.CLIENT_ID = "X$5Yd-h}W#uU!H6JF\PBc}$^ugaO@>X gD#kuM\F"
+    auth.CLIENT_SECRET = ("\>&XR\"$Ct='(;c-+5)-;QL*\'njF<ewUz\' W%XklYOC75^s1O"
+                          "pI*Pe2igU;_i+n,J2Gz)$Lm#_B\lE*}S<*O! JpI;O9P/)?uwo="
+                          "l6;8Lv;WDvqpM0I 2erk/<}d58;fc")
 
     params = {"debug": True,
               "host":"0.0.0.0",}

@@ -1,32 +1,38 @@
+import json
+import requests
+import urllib
+
 from flask import url_for, request, session, redirect, g, abort
 
 from app import app
 from functools import wraps
-import urllib2
-import requests
-import json
 
-# TODO add your base url for example it might be:
-BASE_URL = "http://dockerio-johndotcloud.dotcloud.com"
-AUTHORIZE_URL = BASE_URL + '/account/o/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code'
+
+BASE_URL = "http://localhost:8000"
+AUTHORIZE_URL = BASE_URL + '/account/o/authorize?'
 TOKEN_URL = BASE_URL + '/o/token'
 
-# TODO get these from the environment
-# TODO set these by registering them with the application
-CLIENT_ID = ''
-CLIENT_SECRET = ''
+# Register these in your oauth provider or update them with different values
+CLIENT_ID = "X$5Yd-h}W#uU!H6JF\PBc}$^ugaO@>X gD#kuM\F"
+CLIENT_SECRET = ("\>&XR\"$Ct='(;c-+5)-;QL*\'njF<ewUz\' W%XklYOC75^s1OpI*Pe2igU"
+                 ";_i+n,J2Gz)$Lm#_B\lE*}S<*O! JpI;O9P/)?uwo=l6;8Lv;WDvqpM0I 2e"
+                 "rk/<}d58;fc")
 
 # This is the redirect back to the url of this app
-REDIRECT_BASE_URL = ""
+REDIRECT_BASE_URL = "http://localhost:5000"
 REDIRECT_URI = REDIRECT_BASE_URL + '/oauth_authorized'
 
 
 def authenticate():
     session['auth_next_url'] = request.url
-    return redirect(AUTHORIZE_URL.format(
-        client_id=CLIENT_ID,
-        redirect_uri=urllib2.quote(REDIRECT_URI),
-        secret=CLIENT_SECRET))
+    params = {
+        'client_id':  CLIENT_ID,
+        'secret': CLIENT_SECRET,
+        'redirect_uri': REDIRECT_URI
+    }
+    encoded = urllib.urlencode(params)
+    return redirect(AUTHORIZE_URL + encoded)
+
 
 def request_token(code=None, refresh_token=None):
     if code is None and refresh_token is None:
