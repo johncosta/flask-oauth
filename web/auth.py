@@ -10,13 +10,11 @@ from functools import wraps
 
 BASE_URL = "http://localhost:8000"
 AUTHORIZE_URL = BASE_URL + '/account/o/authorize?'
-TOKEN_URL = BASE_URL + '/o/token'
+TOKEN_URL = BASE_URL + '/account/o/token'
 
 # Register these in your oauth provider or update them with different values
-CLIENT_ID = "X$5Yd-h}W#uU!H6JF\PBc}$^ugaO@>X gD#kuM\F"
-CLIENT_SECRET = ("\>&XR\"$Ct='(;c-+5)-;QL*\'njF<ewUz\' W%XklYOC75^s1OpI*Pe2igU"
-                 ";_i+n,J2Gz)$Lm#_B\lE*}S<*O! JpI;O9P/)?uwo=l6;8Lv;WDvqpM0I 2e"
-                 "rk/<}d58;fc")
+CLIENT_ID = "puwrUBe7"
+CLIENT_SECRET = "yUnebuweTe4am5sWecA4"
 
 # This is the redirect back to the url of this app
 REDIRECT_BASE_URL = "http://localhost:5000"
@@ -24,14 +22,21 @@ REDIRECT_URI = REDIRECT_BASE_URL + '/oauth_authorized'
 
 
 def authenticate():
+    print "[authenticate]: in"
     session['auth_next_url'] = request.url
     params = {
+        'response_type': 'token',
         'client_id':  CLIENT_ID,
         'secret': CLIENT_SECRET,
         'redirect_uri': REDIRECT_URI
     }
     encoded = urllib.urlencode(params)
-    return redirect(AUTHORIZE_URL + encoded)
+    authentication_url = AUTHORIZE_URL + encoded
+    print "[authenticate]: redirecting to authentication url: {0}".format(
+        authentication_url)
+    response = redirect(authentication_url)
+    print "[authenticate]: response: {0}".format(response.__dict__)
+    return response
 
 
 def request_token(code=None, refresh_token=None):
@@ -53,9 +58,9 @@ def request_token(code=None, refresh_token=None):
             'grant_type': 'refresh_token',
             'refresh_token': refresh_token
         })
-    print "Before request post"
+    print "[request_token]: Before request post"
     r = requests.post(TOKEN_URL, data=token_args)
-    print "After request post"
+    print "[request_token]: After request post"
     r.raise_for_status()
     token = json.loads(r.text)
     if token.get('error'):
@@ -85,14 +90,21 @@ def get_current_user():
 def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
+        print "[requires_auth]: in"
+        print "[requires_auth]: g: {0}".format(g)
         if g.user:
             if g.user.get('is_staff') is not True:
                 g.user = None
                 session.pop('token', None)
                 abort(401)
             return f(*args, **kwargs)
+        else:
+            print "[requires_auth]: no user found"
+
         if not 'token' in session:
+            print "[requires_auth]: no token found in session, authenticating"
             return authenticate()
+
         try:
             session['token'] = request_token(refresh_token=session['token']['refresh_token'])
             session.permanent = True
@@ -105,6 +117,7 @@ def requires_auth(f):
             return 'Authentication error'
         print("Blah...")
         return f(*args, **kwargs)
+        print "[requires_auth]: out"
     return decorated
 
 
@@ -123,6 +136,7 @@ def login():
 @app.route('/oauth_authorized')
 def oauth_authorized():
     print "In oauth"
+    print "request.args.code: {0}".format(request.args.get('code'))
     try:
         if not request.args.get('code') or request.args.get('error'):
             return request.args.get('error_description', "Error")

@@ -16,10 +16,8 @@ if __name__ == '__main__':
     
     # Development keys
     auth.REDIRECT_URI = 'http://localhost:5000/oauth_authorized'
-    auth.CLIENT_ID = "X$5Yd-h}W#uU!H6JF\PBc}$^ugaO@>X gD#kuM\F"
-    auth.CLIENT_SECRET = ("\>&XR\"$Ct='(;c-+5)-;QL*\'njF<ewUz\' W%XklYOC75^s1O"
-                          "pI*Pe2igU;_i+n,J2Gz)$Lm#_B\lE*}S<*O! JpI;O9P/)?uwo="
-                          "l6;8Lv;WDvqpM0I 2erk/<}d58;fc")
+    auth.CLIENT_ID = "puwrUBe7"
+    auth.CLIENT_SECRET = "yUnebuweTe4am5sWecA4"
 
     params = {"debug": True,
               "host":"0.0.0.0",}
